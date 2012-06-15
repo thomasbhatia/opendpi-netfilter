@@ -1,6 +1,6 @@
 /* 
  * libxt_opendpi.c
- * Copyright (C) 2010-2012 Gerardo E. Gidoni <geg@gnu.org>
+ * Copyright (C) 2010-2012 G. Elian Gidoni <geg@gnu.org>
  * 
  * This file is part of OpenDPI, an open source deep packet inspection
  * library based on the PACE technology by ipoque GmbH
