@@ -40,7 +40,7 @@
 #include "xt_opendpi.h"
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Gerardo E. Gidoni <geg@gnu.org>");
+MODULE_AUTHOR("G. Elian Gidoni <geg@gnu.org>");
 MODULE_DESCRIPTION("OpenDPI wrapper");
 MODULE_ALIAS("ipt_opendpi");
 
