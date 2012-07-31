@@ -3,16 +3,17 @@ OpenDPI integration into the Linux kernel.
 
 The prerequisites are:
 
-- OpenDPI source package 
-
-- Linux sources (it's been tested for versions 2.6.26 and 2.6.34)
-
-- Iptables header files (called "iptables-dev" in Debian distributions, it's
-  been tested for version 1.4.2)
+- Tested on Debian 6.0 (Kernel 2.6.32-5)
+- Following packages to compile kernel-modules:
+   linux-headers
+   iptables-dev >= version 1.4.8-3
+   OpenDPI source package
 
 
 Compiled kernel features
 ------------------------
+
+You do not need to do the below steps for Debian 6
 
 In order to use OpenDPI as a kernel module notice that:
 
