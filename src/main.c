@@ -36,7 +36,7 @@
 #include <net/netfilter/nf_conntrack.h>
 #include <net/netfilter/nf_conntrack_ecache.h>
 
-#include "ipq_api.h"
+#include "ndpi_main.h"
 #include "xt_opendpi.h"
 
 MODULE_LICENSE("GPL");
@@ -51,7 +51,7 @@ struct osdpi_flow_node {
 	/* result only, not used for flow identification */
 	u32 detected_protocol;
         /* last pointer assigned at run time */
-	struct ipoque_flow_struct *ipoque_flow;
+	struct ndpi_flow_struct *ndpi_flow;
 };
 
 /* id tracking */
@@ -60,7 +60,7 @@ struct osdpi_id_node {
         struct kref refcnt;
 	union nf_inet_addr ip;
         /* last pointer assigned at run time */
-	struct ipoque_id_struct *ipoque_id;
+	struct ndpi_id_struct *ndpi_id;
 };
 
 static u32 size_id_struct = 0;
@@ -72,8 +72,8 @@ static struct rb_root osdpi_id_root = RB_ROOT;
 static struct kmem_cache *osdpi_flow_cache __read_mostly;
 static struct kmem_cache *osdpi_id_cache __read_mostly;
 
-static IPOQUE_PROTOCOL_BITMASK protocols_bitmask;
-static atomic_t protocols_cnt[IPOQUE_MAX_SUPPORTED_PROTOCOLS];
+static NDPI_PROTOCOL_BITMASK protocols_bitmask;
+static atomic_t protocols_cnt[NDPI_MAX_SUPPORTED_PROTOCOLS];
 
 DEFINE_SPINLOCK(flow_lock);
 DEFINE_SPINLOCK(id_lock);
@@ -81,12 +81,12 @@ DEFINE_SPINLOCK(ipq_lock);
 
 
 /* detection */
-static struct ipoque_detection_module_struct *ipoque_struct = NULL;
+static struct ndpi_detection_module_struct *ndpi_struct = NULL;
 static u32 detection_tick_resolution = 1000;
 
 
 static void debug_printf(u32 protocol, void *id_struct,
-                         ipq_log_level_t log_level, const char *format, ...)
+                         ndpi_log_level_t log_level, const char *format, ...)
 {
         /* do nothing */
 }
@@ -226,8 +226,8 @@ opendpi_alloc_flow (struct nf_conn * ct)
                 return NULL;
         }
         flow->ct = ct;
-        flow->ipoque_flow = (struct ipoque_flow_struct *)
-                ((char*)&flow->ipoque_flow+sizeof(flow->ipoque_flow));
+        flow->ndpi_flow = (struct ndpi_flow_struct *)
+                ((char*)&flow->ndpi_flow+sizeof(flow->ndpi_flow));
         opendpi_flow_insert (&osdpi_flow_root, flow);
         spin_unlock_bh (&flow_lock);
 
@@ -268,8 +268,8 @@ opendpi_alloc_id (union nf_inet_addr * ip)
                         return NULL;
                 }
                 memcpy(&id->ip, ip, sizeof(union nf_inet_addr));
-                id->ipoque_id = (struct ipoque_id_struct *)
-                        ((char*)&id->ipoque_id+sizeof(id->ipoque_id));
+                id->ndpi_id = (struct ndpi_id_struct *)
+                        ((char*)&id->ndpi_id+sizeof(id->ndpi_id));
                 kref_init (&id->refcnt);
                 opendpi_id_insert (&osdpi_id_root, id);
         }
@@ -297,13 +297,13 @@ opendpi_enable_protocols (const struct xt_opendpi_mtinfo*info)
 {
         int i;
 
-        for (i = 1; i <= IPOQUE_MAX_SUPPORTED_PROTOCOLS; i++){
-                if (IPOQUE_COMPARE_PROTOCOL_TO_BITMASK(info->flags, i) != 0){
+        for (i = 1; i <= NDPI_MAX_SUPPORTED_PROTOCOLS; i++){
+                if (NDPI_COMPARE_PROTOCOL_TO_BITMASK(info->flags, i) != 0){
                         spin_lock_bh (&ipq_lock);
                         atomic_inc(&protocols_cnt[i-1]);
-                        IPOQUE_ADD_PROTOCOL_TO_BITMASK(protocols_bitmask, i);
-                        ipoque_set_protocol_detection_bitmask2
-                                (ipoque_struct,&protocols_bitmask);
+                        NDPI_ADD_PROTOCOL_TO_BITMASK(protocols_bitmask, i);
+                        ndpi_set_protocol_detection_bitmask2
+                                (ndpi_struct,&protocols_bitmask);
                         spin_unlock_bh (&ipq_lock);
                 }
         }
@@ -315,13 +315,13 @@ opendpi_disable_protocols (const struct xt_opendpi_mtinfo*info)
 {
         int i;
 
-        for (i = 1; i <= IPOQUE_MAX_SUPPORTED_PROTOCOLS; i++){
-                if (IPOQUE_COMPARE_PROTOCOL_TO_BITMASK(info->flags, i) != 0){
+        for (i = 1; i <= NDPI_MAX_SUPPORTED_PROTOCOLS; i++){
+                if (NDPI_COMPARE_PROTOCOL_TO_BITMASK(info->flags, i) != 0){
                         spin_lock_bh (&ipq_lock);
                         if (atomic_dec_and_test(&protocols_cnt[i-1])){
-                                IPOQUE_DEL_PROTOCOL_FROM_BITMASK(protocols_bitmask, i);
-                                ipoque_set_protocol_detection_bitmask2
-                                        (ipoque_struct, &protocols_bitmask);
+                                NDPI_DEL_PROTOCOL_FROM_BITMASK(protocols_bitmask, i);
+                                ndpi_set_protocol_detection_bitmask2
+                                        (ndpi_struct, &protocols_bitmask);
                         }
                         spin_unlock_bh (&ipq_lock);
                 }
@@ -392,7 +392,7 @@ static u32
 opendpi_process_packet(struct nf_conn * ct, const uint64_t time,
                        const struct iphdr *iph, uint16_t ipsize)
 {
-	u32 proto = IPOQUE_PROTOCOL_UNKNOWN;
+	u32 proto = NDPI_PROTOCOL_UNKNOWN;
         union nf_inet_addr *ipsrc, *ipdst;
         struct osdpi_id_node *src, *dst;
         struct osdpi_flow_node * flow;
@@ -430,9 +430,9 @@ opendpi_process_packet(struct nf_conn * ct, const uint64_t time,
 
         /* here the actual detection is performed */
         spin_lock_bh (&ipq_lock);
-        proto = ipoque_detection_process_packet(ipoque_struct,flow->ipoque_flow,
+        proto = ndpi_detection_process_packet(ndpi_struct,flow->ndpi_flow,
                                                 (uint8_t *) iph, ipsize, time,
-                                                src->ipoque_id, dst->ipoque_id);
+                                                src->ndpi_id, dst->ndpi_id);
         flow->detected_protocol = proto;
         spin_unlock_bh (&ipq_lock);
 
@@ -475,11 +475,6 @@ opendpi_mt(const struct sk_buff *skb, struct xt_action_param *par)
 	struct sk_buff *linearized_skb = NULL;
 	const struct sk_buff *skb_use = NULL;
 
-	if (nf_ct_is_untracked(skb)){
-		pr_info ("xt_opendpi: ignoring untracked sk_buff.\n");
-		return false;               
-	}
-
 	if (skb_is_nonlinear(skb)){
 		linearized_skb = skb_copy(skb, GFP_ATOMIC);
 		if (linearized_skb == NULL) {
@@ -499,6 +494,13 @@ opendpi_mt(const struct sk_buff *skb, struct xt_action_param *par)
 		}
 
 		return false;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,0)
+	} else if (nf_ct_is_untracked(skb)){
+#else
+	} else if (nf_ct_is_untracked(ct)){
+#endif
+		pr_info ("xt_opendpi: ignoring untracked sk_buff.\n");
+		return false;               
 	}
 	do_gettimeofday(&tv);
 
@@ -513,7 +515,7 @@ opendpi_mt(const struct sk_buff *skb, struct xt_action_param *par)
 	}
 
 
-	if (IPOQUE_COMPARE_PROTOCOL_TO_BITMASK(info->flags,proto) != 0)
+	if (NDPI_COMPARE_PROTOCOL_TO_BITMASK(info->flags,proto) != 0)
 		return true;
 
 	return false;
@@ -531,7 +533,7 @@ opendpi_mt_check(const char *tablename,
 {
 	const struct xt_opendpi_mtinfo *info = matchinfo;
 
-	if (IPOQUE_BITMASK_IS_ZERO(info->flags)){
+	if (NDPI_BITMASK_IS_ZERO(info->flags)){
 		pr_info("None selected protocol.\n");
 		return false;
 	}
@@ -547,7 +549,7 @@ opendpi_mt_check(const struct xt_mtchk_param *par)
 {
 	const struct xt_opendpi_mtinfo *info = par->matchinfo;
 
-	if (IPOQUE_BITMASK_IS_ZERO(info->flags)){
+	if (NDPI_BITMASK_IS_ZERO(info->flags)){
 		pr_info("None selected protocol.\n");
 		return false;
 	}
@@ -562,7 +564,7 @@ opendpi_mt_check(const struct xt_mtchk_param *par)
 {
 	const struct xt_opendpi_mtinfo *info = par->matchinfo;
 
-	if (IPOQUE_BITMASK_IS_ZERO(info->flags)){
+	if (NDPI_BITMASK_IS_ZERO(info->flags)){
 		pr_info("None selected protocol.\n");
 		return -EINVAL;
 	}
@@ -604,7 +606,7 @@ static void opendpi_cleanup(void)
         struct osdpi_id_node *id;
         struct osdpi_flow_node *flow;
 
-        ipoque_exit_detection_module(ipoque_struct, free_wrapper);
+        ndpi_exit_detection_module(ndpi_struct, free_wrapper);
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,2,0)         
         nf_conntrack_unregister_notifier (&osdpi_notifier);
@@ -656,25 +658,25 @@ static int __init opendpi_mt_init(void)
 
 	pr_info("xt_opendpi 0.1 (OpenDPI wrapper module).\n");
 	/* init global detection structure */
-	ipoque_struct = ipoque_init_detection_module(detection_tick_resolution,
+	ndpi_struct = ndpi_init_detection_module(detection_tick_resolution,
                                                      malloc_wrapper, debug_printf);
-	if (ipoque_struct == NULL) {
+	if (ndpi_struct == NULL) {
 		pr_err("xt_opendpi: global structure initialization failed.\n");
                 ret = -ENOMEM;
                 goto err_out;
 	}
         
-        for (i = 0; i < IPOQUE_MAX_SUPPORTED_PROTOCOLS; i++){
+        for (i = 0; i < NDPI_MAX_SUPPORTED_PROTOCOLS; i++){
                 atomic_set (&protocols_cnt[i], 0);
         }
 
 	/* disable all protocols */
-	IPOQUE_BITMASK_RESET(protocols_bitmask);
-	ipoque_set_protocol_detection_bitmask2(ipoque_struct, &protocols_bitmask);
+	NDPI_BITMASK_RESET(protocols_bitmask);
+	ndpi_set_protocol_detection_bitmask2(ndpi_struct, &protocols_bitmask);
         
 	/* allocate memory for id and flow tracking */
-	size_id_struct = ipoque_detection_get_sizeof_ipoque_id_struct();
-	size_flow_struct = ipoque_detection_get_sizeof_ipoque_flow_struct();
+	size_id_struct = ndpi_detection_get_sizeof_ndpi_id_struct();
+	size_flow_struct = ndpi_detection_get_sizeof_ndpi_flow_struct();
         
         osdpi_flow_cache = kmem_cache_create("xt_opendpi_flows",
                                              sizeof(struct osdpi_flow_node) +
@@ -719,7 +721,7 @@ err_id:
 err_flow:
         kmem_cache_destroy (osdpi_flow_cache);
 err_ipq:
-        ipoque_exit_detection_module(ipoque_struct, free_wrapper);
+        ndpi_exit_detection_module(ndpi_struct, free_wrapper);
 err_out:
         return ret;
 }

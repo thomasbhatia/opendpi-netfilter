@@ -23,10 +23,10 @@
 #define _LINUX_NETFILTER_XT_OPENDPI_H 1
 
 #include <linux/netfilter.h>
-#include "ipq_api.h"
+#include "ndpi_main.h"
 
 struct xt_opendpi_mtinfo {
-        IPOQUE_PROTOCOL_BITMASK flags;
+        NDPI_PROTOCOL_BITMASK flags;
 };
 
 #endif /* _LINUX_NETFILTER_XT_OPENDPI_H */
