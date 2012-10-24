@@ -84,11 +84,29 @@ DEFINE_SPINLOCK(ipq_lock);
 static struct ndpi_detection_module_struct *ndpi_struct = NULL;
 static u32 detection_tick_resolution = 1000;
 
+/* debug functions */
 
 static void debug_printf(u32 protocol, void *id_struct,
                          ndpi_log_level_t log_level, const char *format, ...)
 {
         /* do nothing */
+
+        va_list args;
+        va_start(args, format);
+        switch (log_level)
+        {
+            case NDPI_LOG_ERROR: 
+                vprintk(format, args);
+                break;
+            case NDPI_LOG_TRACE:
+                vprintk(format, args);
+                break;
+
+            case NDPI_LOG_DEBUG:
+                vprintk(format, args);
+                break;
+        }
+        va_end(args);
 }
 
 
