@@ -38,7 +38,7 @@ opendpi_mt4_save(const void *entry, const struct xt_entry_match *match)
 	const struct xt_opendpi_mtinfo *info = (const void *)match->data;
         int i;
 
-        for (i = 1; i <= NDPI_MAX_SUPPORTED_PROTOCOLS; i++){
+        for (i = 1; i <= NDPI_LAST_IMPLEMENTED_PROTOCOL; i++){
                 if (NDPI_COMPARE_PROTOCOL_TO_BITMASK(info->flags, i) != 0){
                         printf("--%s ", prot_short_str[i]);
                 }
@@ -53,7 +53,7 @@ opendpi_mt4_print(const void *entry, const struct xt_entry_match *match,
 	const struct xt_opendpi_mtinfo *info = (const void *)match->data;
 	int i;
 
-        for (i = 1; i <= NDPI_MAX_SUPPORTED_PROTOCOLS; i++){
+        for (i = 1; i <= NDPI_LAST_IMPLEMENTED_PROTOCOL; i++){
                 if (NDPI_COMPARE_PROTOCOL_TO_BITMASK(info->flags, i) != 0){
                         printf("protocol %s ", prot_long_str[i]);
                 }
@@ -69,7 +69,7 @@ opendpi_mt4_parse(int c, char **argv, int invert, unsigned int *flags,
         int i;
 
         *flags = 0;
-        for (i = 1; i <= NDPI_MAX_SUPPORTED_PROTOCOLS; i++){
+        for (i = 1; i <= NDPI_LAST_IMPLEMENTED_PROTOCOL; i++){
                 if (c == i){
                         NDPI_ADD_PROTOCOL_TO_BITMASK(info->flags, i);
                         /*printf("Parameter detected as protocol %s.\n",
@@ -102,7 +102,7 @@ opendpi_mt_help(void)
         int i;
 
 	printf("opendpi match options:\n");
-        for (i = 1; i <= NDPI_MAX_SUPPORTED_PROTOCOLS; i++){
+        for (i = 1; i <= NDPI_LAST_IMPLEMENTED_PROTOCOL; i++){
                 printf("--%s Match for %s protocol packets.\n",
                        prot_short_str[i], prot_long_str[i]);
         }
@@ -117,7 +117,7 @@ opendpi_mt_init (struct xt_entry_match *match)
 }
 
 
-static struct option opendpi_mt_opts[NDPI_MAX_SUPPORTED_PROTOCOLS+1];
+static struct option opendpi_mt_opts[NDPI_LAST_IMPLEMENTED_PROTOCOL+1];
 
 static struct xtables_match
 opendpi_mt4_reg = {
@@ -144,7 +144,7 @@ void _init(void)
 {
         int i;
 
-        for (i = 0; i < NDPI_MAX_SUPPORTED_PROTOCOLS; i++){
+        for (i = 0; i < NDPI_LAST_IMPLEMENTED_PROTOCOL; i++){
                 opendpi_mt_opts[i].name = prot_short_str[i+1];
                 opendpi_mt_opts[i].has_arg = false;
                 opendpi_mt_opts[i].val = i+1;

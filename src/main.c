@@ -73,7 +73,7 @@ static struct kmem_cache *osdpi_flow_cache __read_mostly;
 static struct kmem_cache *osdpi_id_cache __read_mostly;
 
 static NDPI_PROTOCOL_BITMASK protocols_bitmask;
-static atomic_t protocols_cnt[NDPI_MAX_SUPPORTED_PROTOCOLS];
+static atomic_t protocols_cnt[NDPI_LAST_IMPLEMENTED_PROTOCOL];
 
 DEFINE_SPINLOCK(flow_lock);
 DEFINE_SPINLOCK(id_lock);
@@ -297,7 +297,7 @@ opendpi_enable_protocols (const struct xt_opendpi_mtinfo*info)
 {
         int i;
 
-        for (i = 1; i <= NDPI_MAX_SUPPORTED_PROTOCOLS; i++){
+        for (i = 1; i <= NDPI_LAST_IMPLEMENTED_PROTOCOL; i++){
                 if (NDPI_COMPARE_PROTOCOL_TO_BITMASK(info->flags, i) != 0){
                         spin_lock_bh (&ipq_lock);
                         atomic_inc(&protocols_cnt[i-1]);
@@ -315,7 +315,7 @@ opendpi_disable_protocols (const struct xt_opendpi_mtinfo*info)
 {
         int i;
 
-        for (i = 1; i <= NDPI_MAX_SUPPORTED_PROTOCOLS; i++){
+        for (i = 1; i <= NDPI_LAST_IMPLEMENTED_PROTOCOL; i++){
                 if (NDPI_COMPARE_PROTOCOL_TO_BITMASK(info->flags, i) != 0){
                         spin_lock_bh (&ipq_lock);
                         if (atomic_dec_and_test(&protocols_cnt[i-1])){
@@ -666,7 +666,7 @@ static int __init opendpi_mt_init(void)
                 goto err_out;
 	}
         
-        for (i = 0; i < NDPI_MAX_SUPPORTED_PROTOCOLS; i++){
+        for (i = 0; i < NDPI_LAST_IMPLEMENTED_PROTOCOL; i++){
                 atomic_set (&protocols_cnt[i], 0);
         }
 
