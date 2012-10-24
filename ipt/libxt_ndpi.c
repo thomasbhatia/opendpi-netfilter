@@ -1,8 +1,8 @@
 /* 
- * libxt_opendpi.c
+ * libxt_ndpi.c
  * Copyright (C) 2010-2012 G. Elian Gidoni <geg@gnu.org>
  * 
- * This file is part of OpenDPI, an open source deep packet inspection
+ * This file is part of nDPI, an open source deep packet inspection
  * library based on the PACE technology by ipoque GmbH
  * 
  * This program is free software; you can redistribute it and/or
@@ -27,15 +27,15 @@
 
 #include <linux/version.h>
 
-#include "xt_opendpi.h"
+#include "xt_ndpi.h"
 
 static char *prot_long_str[] = { NDPI_PROTOCOL_LONG_STRING };
 static char *prot_short_str[] = { NDPI_PROTOCOL_SHORT_STRING };
 
 static void 
-opendpi_mt4_save(const void *entry, const struct xt_entry_match *match)
+ndpi_mt4_save(const void *entry, const struct xt_entry_match *match)
 {
-	const struct xt_opendpi_mtinfo *info = (const void *)match->data;
+	const struct xt_ndpi_mtinfo *info = (const void *)match->data;
         int i;
 
         for (i = 1; i <= NDPI_LAST_IMPLEMENTED_PROTOCOL; i++){
@@ -47,10 +47,10 @@ opendpi_mt4_save(const void *entry, const struct xt_entry_match *match)
 
 
 static void 
-opendpi_mt4_print(const void *entry, const struct xt_entry_match *match,
+ndpi_mt4_print(const void *entry, const struct xt_entry_match *match,
                   int numeric)
 {
-	const struct xt_opendpi_mtinfo *info = (const void *)match->data;
+	const struct xt_ndpi_mtinfo *info = (const void *)match->data;
 	int i;
 
         for (i = 1; i <= NDPI_LAST_IMPLEMENTED_PROTOCOL; i++){
@@ -62,10 +62,10 @@ opendpi_mt4_print(const void *entry, const struct xt_entry_match *match,
 
 
 static int 
-opendpi_mt4_parse(int c, char **argv, int invert, unsigned int *flags,
+ndpi_mt4_parse(int c, char **argv, int invert, unsigned int *flags,
                   const void *entry, struct xt_entry_match **match)
 {
-	struct xt_opendpi_mtinfo *info = (void *)(*match)->data;
+	struct xt_ndpi_mtinfo *info = (void *)(*match)->data;
         int i;
 
         *flags = 0;
@@ -87,21 +87,21 @@ opendpi_mt4_parse(int c, char **argv, int invert, unsigned int *flags,
 #endif
 
 static void
-opendpi_mt_check (unsigned int flags)
+ndpi_mt_check (unsigned int flags)
 {
 	if (flags == 0){
-		xtables_error(PARAMETER_PROBLEM, "xt_opendpi: You need to "
+		xtables_error(PARAMETER_PROBLEM, "xt_ndpi: You need to "
                               "specify at least one protocol");
 	}
 }
 
 
 static void
-opendpi_mt_help(void)
+ndpi_mt_help(void)
 {
         int i;
 
-	printf("opendpi match options:\n");
+	printf("ndpi match options:\n");
         for (i = 1; i <= NDPI_LAST_IMPLEMENTED_PROTOCOL; i++){
                 printf("--%s Match for %s protocol packets.\n",
                        prot_short_str[i], prot_long_str[i]);
@@ -110,34 +110,34 @@ opendpi_mt_help(void)
 
 
 static void 
-opendpi_mt_init (struct xt_entry_match *match)
+ndpi_mt_init (struct xt_entry_match *match)
 {
-	struct xt_opendpi_mtinfo *info = (void *)match->data;
+	struct xt_ndpi_mtinfo *info = (void *)match->data;
 	/* inet_pton(PF_INET, "192.0.2.137", &info->dst.in); */
 }
 
 
-static struct option opendpi_mt_opts[NDPI_LAST_IMPLEMENTED_PROTOCOL+1];
+static struct option ndpi_mt_opts[NDPI_LAST_IMPLEMENTED_PROTOCOL+1];
 
 static struct xtables_match
-opendpi_mt4_reg = {
+ndpi_mt4_reg = {
 	.version = XTABLES_VERSION,
-	.name = "opendpi",
+	.name = "ndpi",
 	.revision = 0,
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,28)
 	.family = AF_INET,
 #else
 	.family = NFPROTO_IPV4,
 #endif
-	.size = XT_ALIGN(sizeof(struct xt_opendpi_mtinfo)),
-	.userspacesize = XT_ALIGN(sizeof(struct xt_opendpi_mtinfo)),
-	.help = opendpi_mt_help,
-	.init = opendpi_mt_init,
-	.parse = opendpi_mt4_parse,
-	.final_check = opendpi_mt_check,
-	.print = opendpi_mt4_print,
-	.save = opendpi_mt4_save,
-	.extra_opts = opendpi_mt_opts,
+	.size = XT_ALIGN(sizeof(struct xt_ndpi_mtinfo)),
+	.userspacesize = XT_ALIGN(sizeof(struct xt_ndpi_mtinfo)),
+	.help = ndpi_mt_help,
+	.init = ndpi_mt_init,
+	.parse = ndpi_mt4_parse,
+	.final_check = ndpi_mt_check,
+	.print = ndpi_mt4_print,
+	.save = ndpi_mt4_save,
+	.extra_opts = ndpi_mt_opts,
 };
 
 void _init(void)
@@ -145,14 +145,14 @@ void _init(void)
         int i;
 
         for (i = 0; i < NDPI_LAST_IMPLEMENTED_PROTOCOL; i++){
-                opendpi_mt_opts[i].name = prot_short_str[i+1];
-                opendpi_mt_opts[i].has_arg = false;
-                opendpi_mt_opts[i].val = i+1;
+                ndpi_mt_opts[i].name = prot_short_str[i+1];
+                ndpi_mt_opts[i].has_arg = false;
+                ndpi_mt_opts[i].val = i+1;
         }
-        opendpi_mt_opts[i].name = NULL;
-        opendpi_mt_opts[i].flag = NULL;
-        opendpi_mt_opts[i].has_arg = 0;
-        opendpi_mt_opts[i].val = 0;
+        ndpi_mt_opts[i].name = NULL;
+        ndpi_mt_opts[i].flag = NULL;
+        ndpi_mt_opts[i].has_arg = 0;
+        ndpi_mt_opts[i].val = 0;
 
-	xtables_register_match(&opendpi_mt4_reg);
+	xtables_register_match(&ndpi_mt4_reg);
 }
