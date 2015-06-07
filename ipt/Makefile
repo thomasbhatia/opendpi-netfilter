@@ -1,21 +1,21 @@
-OPENDPI_PATH2 := ${OPENDPI_PATH}/src
-OPENDPI_SRC := opendpi_cpy
-OPENDPI_PRO := ${OPENDPI_SRC}/lib/protocols
+NDPI_PATH2 := ${NDPI_PATH}/src
+NDPI_SRC := ndpi_cpy
+NDPI_PRO := ${NDPI_SRC}/lib/protocols
 
-CFLAGS = -fPIC -I${OPENDPI_SRC}/include -I${OPENDPI_SRC}/lib -I../src -DOPENDPI_NETFILTER_MODULE -O2 -Wall
+CFLAGS = -fPIC -I${NDPI_SRC}/include -I${NDPI_SRC}/lib -I../src -DOPENDPI_NETFILTER_MODULE -O2 -Wall
 
 all:
-	if test -d ${OPENDPI_SRC}; then \
-		cp ${OPENDPI_PATH2}/* ${OPENDPI_SRC} -R; \
+	if test -d ${NDPI_SRC}; then \
+		cp ${NDPI_PATH2}/* ${NDPI_SRC} -R; \
 	else \
-		mkdir ${OPENDPI_SRC}; \
-		cp ${OPENDPI_PATH2}/* ${OPENDPI_SRC} -R; \
+		mkdir ${NDPI_SRC}; \
+		cp ${NDPI_PATH2}/* ${NDPI_SRC} -R; \
 	fi
-	make libxt_opendpi.so
-	rm -r ${OPENDPI_SRC}
+	make libxt_ndpi.so
+	rm -r ${NDPI_SRC}
 lib%.so: lib%.o
 	$(CC) -shared -o $@ $^;
 lib%.o: lib%.c
 	$(CC) ${CFLAGS} -D_INIT=lib$*_init -c -o $@ $<;
 clean:
-	rm -rf libxt_opendpi.so ${OPENDPI_SRC}
+	rm -rf libxt_ndpi.so ${NDPI_SRC}

@@ -1,62 +1,132 @@
-OPENDPI_PATH2 := ${OPENDPI_PATH}/src
-OPENDPI_SRC := opendpi_cpy
-OPENDPI_PRO := ${OPENDPI_SRC}/lib/protocols
+NDPI_PATH2 := ${NDPI_PATH}/src
+NDPI_SRC := ndpi_cpy
+NDPI_PRO := ${NDPI_SRC}/lib/protocols
 
-ccflags-y += -I${src}/${OPENDPI_SRC}/include -I${src}/${OPENDPI_SRC}/lib -DOPENDPI_NETFILTER_MODULE
+ccflags-y += -I${src}/${NDPI_SRC}/include -I${src}/${NDPI_SRC}/lib -DOPENDPI_NETFILTER_MODULE
 
 #MODULES_DIR := /lib/modules/$(shell uname -r)
 #KERNEL_DIR := ${MODULES_DIR}/build
 
-obj-m := xt_opendpi.o
-xt_opendpi-y := main.o ${OPENDPI_SRC}/lib/ipq_main.o \
-                ${OPENDPI_PRO}/afp.o ${OPENDPI_PRO}/dns.o ${OPENDPI_PRO}/halflife2_and_mods.o \
-                ${OPENDPI_PRO}/kontiki.o ${OPENDPI_PRO}/msn.o ${OPENDPI_PRO}/pcanywhere.o \
-                ${OPENDPI_PRO}/rtsp.o ${OPENDPI_PRO}/ssdp.o ${OPENDPI_PRO}/tftp.o \
-                ${OPENDPI_PRO}/xbox.o ${OPENDPI_PRO}/aimini.o ${OPENDPI_PRO}/edonkey.o \
-                ${OPENDPI_PRO}/http.o ${OPENDPI_PRO}/mail_imap.o ${OPENDPI_PRO}/mysql.o \
-                ${OPENDPI_PRO}/popo.o ${OPENDPI_PRO}/secondlife.o ${OPENDPI_PRO}/ssh.o \
-                ${OPENDPI_PRO}/thunder.o ${OPENDPI_PRO}/xdmcp.o ${OPENDPI_PRO}/applejuice.o \
-                ${OPENDPI_PRO}/fasttrack.o ${OPENDPI_PRO}/i23v5.o ${OPENDPI_PRO}/mail_pop.o \
-                ${OPENDPI_PRO}/netbios.o ${OPENDPI_PRO}/postgres.o ${OPENDPI_PRO}/shoutcast.o \
-                ${OPENDPI_PRO}/ssl.o ${OPENDPI_PRO}/tvants.o ${OPENDPI_PRO}/yahoo.o \
-                ${OPENDPI_PRO}/battlefield.o ${OPENDPI_PRO}/feidian.o ${OPENDPI_PRO}/iax.o \
-                ${OPENDPI_PRO}/mail_smtp.o ${OPENDPI_PRO}/nfs.o ${OPENDPI_PRO}/pplive.o \
-                ${OPENDPI_PRO}/sip.o ${OPENDPI_PRO}/stealthnet.o ${OPENDPI_PRO}/tvuplayer.o \
-                ${OPENDPI_PRO}/zattoo.o ${OPENDPI_PRO}/bgp.o ${OPENDPI_PRO}/filetopia.o \
-                ${OPENDPI_PRO}/icecast.o ${OPENDPI_PRO}/manolito.o ${OPENDPI_PRO}/non_tcp_udp.o \
-                ${OPENDPI_PRO}/ppstream.o ${OPENDPI_PRO}/smb.o ${OPENDPI_PRO}/steam.o \
-                ${OPENDPI_PRO}/usenet.o ${OPENDPI_PRO}/bittorrent.o ${OPENDPI_PRO}/flash.o \
-                ${OPENDPI_PRO}/imesh.o ${OPENDPI_PRO}/mdns.o ${OPENDPI_PRO}/ntp.o \
-                ${OPENDPI_PRO}/qq.o ${OPENDPI_PRO}/snmp.o ${OPENDPI_PRO}/stun.o \
-                ${OPENDPI_PRO}/veohtv.o ${OPENDPI_PRO}/dhcp.o ${OPENDPI_PRO}/ftp.o \
-                ${OPENDPI_PRO}/ipp.o ${OPENDPI_PRO}/meebo.o ${OPENDPI_PRO}/openft.o \
-                ${OPENDPI_PRO}/quake.o ${OPENDPI_PRO}/socrates.o ${OPENDPI_PRO}/syslog.o \
-                ${OPENDPI_PRO}/vnc.o ${OPENDPI_PRO}/directconnect.o ${OPENDPI_PRO}/gadu_gadu.o \
-                ${OPENDPI_PRO}/irc.o ${OPENDPI_PRO}/mgcp.o ${OPENDPI_PRO}/oscar.o \
-                ${OPENDPI_PRO}/rdp.o ${OPENDPI_PRO}/sopcast.o ${OPENDPI_PRO}/tds.o \
-                ${OPENDPI_PRO}/winmx.o ${OPENDPI_PRO}/directdownloadlink.o ${OPENDPI_PRO}/gnutella.o \
-                ${OPENDPI_PRO}/jabber.o ${OPENDPI_PRO}/mms.o ${OPENDPI_PRO}/pando.o \
-                ${OPENDPI_PRO}/rtp.o ${OPENDPI_PRO}/soulseek.o ${OPENDPI_PRO}/telnet.o \
-                ${OPENDPI_PRO}/world_of_warcraft.o ${OPENDPI_PRO}/maplestory.o \
-                ${OPENDPI_PRO}/ldap.o ${OPENDPI_PRO}/dhcpv6.o \
-                ${OPENDPI_PRO}/dofus.o ${OPENDPI_PRO}/kerberos.o \
-                ${OPENDPI_PRO}/pptp.o ${OPENDPI_PRO}/warcraft3.o \
-                ${OPENDPI_PRO}/http_activesync.o ${OPENDPI_PRO}/armagetron.o \
-                ${OPENDPI_PRO}/florensia.o ${OPENDPI_PRO}/world_of_kung_fu.o \
-                ${OPENDPI_PRO}/mssql.o ${OPENDPI_PRO}/guildwars.o \
-                ${OPENDPI_PRO}/crossfire.o ${OPENDPI_PRO}/fiesta.o ${OPENDPI_PRO}/hf.o \
-		${OPENDPI_PRO}/pt11.o ${OPENDPI_PRO}/funshion.o ${OPENDPI_PRO}/pptv.o \
-		${OPENDPI_PRO}/counterstrike.o ${OPENDPI_PRO}/aliwangwang.o 
+obj-m := xt_ndpi.o
+xt_ndpi-y := main.o ${NDPI_SRC}/lib/ndpi_main.o \
+                ${NDPI_PRO}/afp.o \
+                ${NDPI_PRO}/aimini.o \
+                ${NDPI_PRO}/applejuice.o \
+                ${NDPI_PRO}/armagetron.o \
+                ${NDPI_PRO}/battlefield.o \
+                ${NDPI_PRO}/bgp.o \
+                ${NDPI_PRO}/bittorrent.o \
+                ${NDPI_PRO}/citrix.o \
+                ${NDPI_PRO}/crossfire.o \
+                ${NDPI_PRO}/dcerpc.o \
+                ${NDPI_PRO}/dhcp.o \
+                ${NDPI_PRO}/dhcpv6.o \
+                ${NDPI_PRO}/directconnect.o \
+                ${NDPI_PRO}/directdownloadlink.o \
+                ${NDPI_PRO}/dns.o \
+                ${NDPI_PRO}/dofus.o \
+                ${NDPI_PRO}/dropbox.o \
+                ${NDPI_PRO}/edonkey.o \
+                ${NDPI_PRO}/fasttrack.o \
+                ${NDPI_PRO}/feidian.o \
+                ${NDPI_PRO}/fiesta.o \
+                ${NDPI_PRO}/filetopia.o \
+                ${NDPI_PRO}/flash.o \
+                ${NDPI_PRO}/florensia.o \
+                ${NDPI_PRO}/ftp.o \
+                ${NDPI_PRO}/gadu_gadu.o \
+                ${NDPI_PRO}/gnutella.o \
+                ${NDPI_PRO}/guildwars.o \
+                ${NDPI_PRO}/halflife2_and_mods.o \
+                ${NDPI_PRO}/http.o \
+                ${NDPI_PRO}/http_activesync.o \
+                ${NDPI_PRO}/i23v5.o \
+                ${NDPI_PRO}/iax.o \
+                ${NDPI_PRO}/icecast.o \
+                ${NDPI_PRO}/imesh.o \
+                ${NDPI_PRO}/ipp.o \
+                ${NDPI_PRO}/irc.o \
+                ${NDPI_PRO}/jabber.o \
+                ${NDPI_PRO}/kerberos.o \
+                ${NDPI_PRO}/kontiki.o \
+                ${NDPI_PRO}/ldap.o \
+                ${NDPI_PRO}/mail_imap.o \
+                ${NDPI_PRO}/mail_pop.o \
+                ${NDPI_PRO}/mail_smtp.o \
+                ${NDPI_PRO}/manolito.o \
+                ${NDPI_PRO}/maplestory.o \
+                ${NDPI_PRO}/mdns.o \
+                ${NDPI_PRO}/meebo.o \
+                ${NDPI_PRO}/mgcp.o \
+                ${NDPI_PRO}/mms.o \
+                ${NDPI_PRO}/msn.o \
+                ${NDPI_PRO}/mssql.o \
+                ${NDPI_PRO}/mysql.o \
+                ${NDPI_PRO}/netbios.o \
+                ${NDPI_PRO}/netflow.o \
+                ${NDPI_PRO}/nfs.o \
+                ${NDPI_PRO}/non_tcp_udp.o \
+                ${NDPI_PRO}/ntp.o \
+                ${NDPI_PRO}/openft.o \
+                ${NDPI_PRO}/oscar.o \
+                ${NDPI_PRO}/pando.o \
+                ${NDPI_PRO}/pcanywhere.o \
+                ${NDPI_PRO}/popo.o \
+                ${NDPI_PRO}/postgres.o \
+                ${NDPI_PRO}/pplive.o \
+                ${NDPI_PRO}/ppstream.o \
+                ${NDPI_PRO}/pptp.o \
+                ${NDPI_PRO}/qq.o \
+                ${NDPI_PRO}/quake.o \
+                ${NDPI_PRO}/radius.o \
+                ${NDPI_PRO}/rdp.o \
+                ${NDPI_PRO}/rtp.o \
+                ${NDPI_PRO}/rtsp.o \
+                ${NDPI_PRO}/secondlife.o \
+                ${NDPI_PRO}/sflow.o \
+                ${NDPI_PRO}/shoutcast.o \
+                ${NDPI_PRO}/sip.o \
+                ${NDPI_PRO}/skype.o \
+                ${NDPI_PRO}/smb.o \
+                ${NDPI_PRO}/snmp.o \
+                ${NDPI_PRO}/socrates.o \
+                ${NDPI_PRO}/sopcast.o \
+                ${NDPI_PRO}/soulseek.o \
+                ${NDPI_PRO}/ssdp.o \
+                ${NDPI_PRO}/ssh.o \
+                ${NDPI_PRO}/ssl.o \
+                ${NDPI_PRO}/stealthnet.o \
+                ${NDPI_PRO}/steam.o \
+                ${NDPI_PRO}/stun.o \
+                ${NDPI_PRO}/syslog.o \
+                ${NDPI_PRO}/tds.o \
+                ${NDPI_PRO}/teamviewer.o \
+                ${NDPI_PRO}/telnet.o \
+                ${NDPI_PRO}/tftp.o \
+                ${NDPI_PRO}/thunder.o \
+                ${NDPI_PRO}/tvants.o \
+                ${NDPI_PRO}/tvuplayer.o \
+                ${NDPI_PRO}/usenet.o \
+                ${NDPI_PRO}/veohtv.o \
+                ${NDPI_PRO}/vnc.o \
+                ${NDPI_PRO}/warcraft3.o \
+                ${NDPI_PRO}/winmx.o \
+                ${NDPI_PRO}/world_of_kung_fu.o \
+                ${NDPI_PRO}/world_of_warcraft.o \
+                ${NDPI_PRO}/xbox.o \
+                ${NDPI_PRO}/xdmcp.o \
+                ${NDPI_PRO}/yahoo.o \
+                ${NDPI_PRO}/zattoo.o
 
 all:
-	if test -d ${OPENDPI_SRC}; then \
-		cp ${OPENDPI_PATH2}/* ${OPENDPI_SRC} -R; \
+	if test -d ${NDPI_SRC}; then \
+		cp ${NDPI_PATH2}/* ${NDPI_SRC} -R; \
 	else \
-		mkdir ${OPENDPI_SRC}; \
-		cp ${OPENDPI_PATH2}/* ${OPENDPI_SRC} -R; \
+		mkdir ${NDPI_SRC}; \
+		cp ${NDPI_PATH2}/* ${NDPI_SRC} -R; \
 	fi
 	make -C ${KERNEL_DIR} M=$$PWD;
-	rm -r ${OPENDPI_SRC}
+	rm -r ${NDPI_SRC}
 modules:
 	make -C ${KERNEL_DIR} M=$$PWD $@;
 modules_install:
@@ -64,4 +134,4 @@ modules_install:
 	depmod -a;
 clean:
 	make -C ${KERNEL_DIR} M=$$PWD $@;
-	rm -rf modules.order ${OPENDPI_SRC}
+	rm -rf modules.order ${NDPI_SRC}

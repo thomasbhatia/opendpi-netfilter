@@ -1,5 +1,5 @@
 This package is a GPL implementation of an iptables and netfilter module for
-OpenDPI integration into the Linux kernel.
+nDPI integration into the Linux kernel.
 
 The prerequisites are:
 
@@ -7,7 +7,7 @@ The prerequisites are:
 - Following packages to compile kernel-modules:
    linux-headers
    iptables-dev >= version 1.4.8-3
-   OpenDPI source package
+   nDPI source package
 
 
 Compiled kernel features
@@ -15,7 +15,7 @@ Compiled kernel features
 
 You do not need to do the below steps for Debian 6
 
-In order to use OpenDPI as a kernel module notice that:
+In order to use nDPI as a kernel module notice that:
 
 - You should ENABLE Netfilter conntrack events (and also enable Advanced
   netfilter features to see it).
