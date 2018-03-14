@@ -1,19 +1,19 @@
-/* 
+/*
  * libxt_opendpi.c
  * Copyright (C) 2010-2012 G. Elian Gidoni <geg@gnu.org>
- * 
+ *
  * This file is part of OpenDPI, an open source deep packet inspection
  * library based on the PACE technology by ipoque GmbH
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2 of the License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -32,7 +32,7 @@
 static char *prot_long_str[] = { IPOQUE_PROTOCOL_LONG_STRING };
 static char *prot_short_str[] = { IPOQUE_PROTOCOL_SHORT_STRING };
 
-static void 
+static void
 opendpi_mt4_save(const void *entry, const struct xt_entry_match *match)
 {
 	const struct xt_opendpi_mtinfo *info = (const void *)match->data;
@@ -46,7 +46,7 @@ opendpi_mt4_save(const void *entry, const struct xt_entry_match *match)
 }
 
 
-static void 
+static void
 opendpi_mt4_print(const void *entry, const struct xt_entry_match *match,
                   int numeric)
 {
@@ -61,7 +61,7 @@ opendpi_mt4_print(const void *entry, const struct xt_entry_match *match,
 }
 
 
-static int 
+static int
 opendpi_mt4_parse(int c, char **argv, int invert, unsigned int *flags,
                   const void *entry, struct xt_entry_match **match)
 {
@@ -109,11 +109,10 @@ opendpi_mt_help(void)
 }
 
 
-static void 
+static void
 opendpi_mt_init (struct xt_entry_match *match)
 {
-	struct xt_opendpi_mtinfo *info = (void *)match->data;
-	/* inet_pton(PF_INET, "192.0.2.137", &info->dst.in); */
+    /* do nothing */
 }
 
 

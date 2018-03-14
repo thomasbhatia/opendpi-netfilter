@@ -1,19 +1,19 @@
-/* 
+/*
  * main.c
  * Copyright (C) 2010-2012 G. Elian Gidoni <geg@gnu.org>
- * 
+ *
  * This file is part of OpenDPI, an open source deep packet inspection
  * library based on the PACE technology by ipoque GmbH
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; version 2 of the License.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -41,6 +41,7 @@
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("G. Elian Gidoni <geg@gnu.org>");
+MODULE_AUTHOR("Thomas Bhatia <thomas.bhatia@eo.io>");
 MODULE_DESCRIPTION("OpenDPI wrapper");
 MODULE_ALIAS("ipt_opendpi");
 
@@ -48,19 +49,19 @@ MODULE_ALIAS("ipt_opendpi");
 struct osdpi_flow_node {
         struct rb_node node;
         struct nf_conn * ct;
-	/* result only, not used for flow identification */
-	u32 detected_protocol;
+    /* result only, not used for flow identification */
+    u32 detected_protocol;
         /* last pointer assigned at run time */
-	struct ipoque_flow_struct *ipoque_flow;
+    struct ipoque_flow_struct *ipoque_flow;
 };
 
 /* id tracking */
 struct osdpi_id_node {
         struct rb_node node;
         struct kref refcnt;
-	union nf_inet_addr ip;
+    union nf_inet_addr ip;
         /* last pointer assigned at run time */
-	struct ipoque_id_struct *ipoque_id;
+    struct ipoque_id_struct *ipoque_id;
 };
 
 static u32 size_id_struct = 0;
@@ -94,33 +95,33 @@ static void debug_printf(u32 protocol, void *id_struct,
 
 static void *malloc_wrapper(unsigned long size)
 {
-	return kmalloc(size, GFP_KERNEL);
+    return kmalloc(size, GFP_KERNEL);
 }
 
 
 static void free_wrapper(void *freeable)
 {
-	kfree(freeable);
+    kfree(freeable);
 }
 
 static struct osdpi_flow_node *
 opendpi_flow_search(struct rb_root *root, struct nf_conn *ct)
 {
         struct osdpi_flow_node *data;
-  	struct rb_node *node = root->rb_node;
+    struct rb_node *node = root->rb_node;
 
-  	while (node) {
+    while (node) {
                 data = rb_entry(node, struct osdpi_flow_node, node);
 
-		if (ct < data->ct)
-  			node = node->rb_left;
-		else if (ct > data->ct)
-  			node = node->rb_right;
-		else
-  			return data;
-	}
+        if (ct < data->ct)
+            node = node->rb_left;
+        else if (ct > data->ct)
+            node = node->rb_right;
+        else
+            return data;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 
@@ -128,23 +129,23 @@ static int
 opendpi_flow_insert(struct rb_root *root, struct osdpi_flow_node *data)
 {
         struct osdpi_flow_node *this;
-  	struct rb_node **new = &(root->rb_node), *parent = NULL;
+    struct rb_node **new = &(root->rb_node), *parent = NULL;
 
-  	while (*new) {
+    while (*new) {
                 this = rb_entry(*new, struct osdpi_flow_node, node);
 
-		parent = *new;
-  		if (data->ct < this->ct)
-  			new = &((*new)->rb_left);
-  		else if (data->ct > this->ct)
-  			new = &((*new)->rb_right);
-  		else
-  			return 0;
-  	}
-  	rb_link_node(&data->node, parent, new);
-  	rb_insert_color(&data->node, root);
+        parent = *new;
+        if (data->ct < this->ct)
+            new = &((*new)->rb_left);
+        else if (data->ct > this->ct)
+            new = &((*new)->rb_right);
+        else
+            return 0;
+    }
+    rb_link_node(&data->node, parent, new);
+    rb_insert_color(&data->node, root);
 
-	return 1;
+    return 1;
 }
 
 
@@ -153,21 +154,21 @@ opendpi_id_search(struct rb_root *root, union nf_inet_addr *ip)
 {
         int res;
         struct osdpi_id_node *data;
-  	struct rb_node *node = root->rb_node;
+    struct rb_node *node = root->rb_node;
 
-  	while (node) {
+    while (node) {
                 data = rb_entry(node, struct osdpi_id_node, node);
-		res = memcmp(ip, &data->ip, sizeof(union nf_inet_addr));
+        res = memcmp(ip, &data->ip, sizeof(union nf_inet_addr));
 
-		if (res < 0)
-  			node = node->rb_left;
-		else if (res > 0)
-  			node = node->rb_right;
-		else
-  			return data;
-	}
+        if (res < 0)
+            node = node->rb_left;
+        else if (res > 0)
+            node = node->rb_right;
+        else
+            return data;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 
@@ -176,24 +177,24 @@ opendpi_id_insert(struct rb_root *root, struct osdpi_id_node *data)
 {
         int res;
         struct osdpi_id_node *this;
-  	struct rb_node **new = &(root->rb_node), *parent = NULL;
+    struct rb_node **new = &(root->rb_node), *parent = NULL;
 
-  	while (*new) {
+    while (*new) {
                 this = rb_entry(*new, struct osdpi_id_node, node);
-		res = memcmp(&data->ip, &this->ip, sizeof(union nf_inet_addr));
+        res = memcmp(&data->ip, &this->ip, sizeof(union nf_inet_addr));
 
-		parent = *new;
-  		if (res < 0)
-  			new = &((*new)->rb_left);
-  		else if (res > 0)
-  			new = &((*new)->rb_right);
-  		else
-  			return 0;
-  	}
-  	rb_link_node(&data->node, parent, new);
-  	rb_insert_color(&data->node, root);
+        parent = *new;
+        if (res < 0)
+            new = &((*new)->rb_left);
+        else if (res > 0)
+            new = &((*new)->rb_right);
+        else
+            return 0;
+    }
+    rb_link_node(&data->node, parent, new);
+    rb_insert_color(&data->node, root);
 
-	return 1;
+    return 1;
 }
 
 
@@ -364,8 +365,10 @@ opendpi_conntrack_event(unsigned int events, struct nf_ct_event *item)
         struct nf_conn * ct = item->ct;
         union nf_inet_addr *src, *dst;
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,28)
         if (ct == &nf_conntrack_untracked)
-                return 0;
+            return 0;
+#endif
 
         if (events & (1 << IPCT_DESTROY)){
                 src = &ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple.src.u3;
@@ -392,7 +395,7 @@ static u32
 opendpi_process_packet(struct nf_conn * ct, const uint64_t time,
                        const struct iphdr *iph, uint16_t ipsize)
 {
-	u32 proto = IPOQUE_PROTOCOL_UNKNOWN;
+    u32 proto = IPOQUE_PROTOCOL_UNKNOWN;
         union nf_inet_addr *ipsrc, *ipdst;
         struct osdpi_id_node *src, *dst;
         struct osdpi_flow_node * flow;
@@ -411,22 +414,22 @@ opendpi_process_packet(struct nf_conn * ct, const uint64_t time,
         spin_lock_bh (&id_lock);
         src = opendpi_id_search (&osdpi_id_root, ipsrc);
         spin_unlock_bh (&id_lock);
-	if (src == NULL) {
+    if (src == NULL) {
                 src = opendpi_alloc_id(ipsrc);
                 if (src == NULL)
                         return proto;
-	}
+    }
 
         ipdst = &ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple.dst.u3;
 
         spin_lock_bh (&id_lock);
         dst = opendpi_id_search (&osdpi_id_root, ipdst);
         spin_unlock_bh (&id_lock);
-	if (dst == NULL) {
+    if (dst == NULL) {
                 dst = opendpi_alloc_id(ipdst);
                 if (dst == NULL)
                         return proto;
-	}
+    }
 
         /* here the actual detection is performed */
         spin_lock_bh (&ipq_lock);
@@ -436,13 +439,13 @@ opendpi_process_packet(struct nf_conn * ct, const uint64_t time,
         flow->detected_protocol = proto;
         spin_unlock_bh (&ipq_lock);
 
-	return proto;
+    return proto;
 }
 
 
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,28)
-static bool 
+static bool
 opendpi_mt (const struct sk_buff *skb,
             const struct net_device *in,
             const struct net_device *out,
@@ -460,68 +463,70 @@ static bool
 opendpi_mt(const struct sk_buff *skb, struct xt_action_param *par)
 #endif
 {
-	u32 proto;
-	u64 time;
+    u32 proto;
+    u64 time;
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,28)
-	const struct xt_opendpi_mtinfo *info = matchinfo;
+    const struct xt_opendpi_mtinfo *info = matchinfo;
 #else
-	const struct xt_opendpi_mtinfo *info = par->matchinfo;
+    const struct xt_opendpi_mtinfo *info = par->matchinfo;
 #endif
 
-	enum ip_conntrack_info ctinfo;
-	struct nf_conn * ct;
-	struct timeval tv;
-	struct sk_buff *linearized_skb = NULL;
-	const struct sk_buff *skb_use = NULL;
+    enum ip_conntrack_info ctinfo;
+    struct nf_conn * ct;
+    struct timeval tv;
+    struct sk_buff *linearized_skb = NULL;
+    const struct sk_buff *skb_use = NULL;
 
-	if (nf_ct_is_untracked(skb)){
-		pr_info ("xt_opendpi: ignoring untracked sk_buff.\n");
-		return false;               
-	}
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,28)
+    if (nf_ct_is_untracked(skb)){
+        pr_info ("xt_opendpi: ignoring untracked sk_buff.\n");
+        return false;
+    }
+#endif
 
-	if (skb_is_nonlinear(skb)){
-		linearized_skb = skb_copy(skb, GFP_ATOMIC);
-		if (linearized_skb == NULL) {
-			pr_info ("xt_opendpi: linearization failed.\n");
-			return false;
-		}
-		skb_use = linearized_skb;
-	} else {
-		skb_use = skb;
-	}
+    if (skb_is_nonlinear(skb)){
+        linearized_skb = skb_copy(skb, GFP_ATOMIC);
+        if (linearized_skb == NULL) {
+            pr_info ("xt_opendpi: linearization failed.\n");
+            return false;
+        }
+        skb_use = linearized_skb;
+    } else {
+        skb_use = skb;
+    }
 
-	ct = nf_ct_get (skb_use, &ctinfo);
-	if (ct == NULL){
+    ct = nf_ct_get (skb_use, &ctinfo);
+    if (ct == NULL){
 
-		if(linearized_skb != NULL){
-			kfree_skb(linearized_skb);
-		}
+        if(linearized_skb != NULL){
+            kfree_skb(linearized_skb);
+        }
 
-		return false;
-	}
-	do_gettimeofday(&tv);
+        return false;
+    }
+    do_gettimeofday(&tv);
 
-	time = ((uint64_t) tv.tv_sec) * detection_tick_resolution +
-		tv.tv_usec / (1000000 / detection_tick_resolution);
+    time = ((uint64_t) tv.tv_sec) * detection_tick_resolution +
+        tv.tv_usec / (1000000 / detection_tick_resolution);
 
-	/* process the packet */
-	proto = opendpi_process_packet(ct, time, ip_hdr(skb_use), skb_use->len);
+    /* process the packet */
+    proto = opendpi_process_packet(ct, time, ip_hdr(skb_use), skb_use->len);
 
-	if(linearized_skb != NULL){
-		kfree_skb(linearized_skb);
-	}
+    if(linearized_skb != NULL){
+        kfree_skb(linearized_skb);
+    }
 
 
-	if (IPOQUE_COMPARE_PROTOCOL_TO_BITMASK(info->flags,proto) != 0)
-		return true;
+    if (IPOQUE_COMPARE_PROTOCOL_TO_BITMASK(info->flags,proto) != 0)
+        return true;
 
-	return false;
+    return false;
 }
 
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,28)
-static bool 
+static bool
 opendpi_mt_check(const char *tablename,
                  const void *ip,
                  const struct xt_match *match,
@@ -529,69 +534,69 @@ opendpi_mt_check(const char *tablename,
                  unsigned int hook_mask)
 
 {
-	const struct xt_opendpi_mtinfo *info = matchinfo;
+    const struct xt_opendpi_mtinfo *info = matchinfo;
 
-	if (IPOQUE_BITMASK_IS_ZERO(info->flags)){
-		pr_info("None selected protocol.\n");
-		return false;
-	}
+    if (IPOQUE_BITMASK_IS_ZERO(info->flags)){
+        pr_info("None selected protocol.\n");
+        return false;
+    }
 
         opendpi_enable_protocols (info);
 
-	return nf_ct_l3proto_try_module_get (match->family) == 0;
+    return nf_ct_l3proto_try_module_get (match->family) == 0;
 }
 
 #elif LINUX_VERSION_CODE < KERNEL_VERSION(2,6,35)
 static bool
 opendpi_mt_check(const struct xt_mtchk_param *par)
 {
-	const struct xt_opendpi_mtinfo *info = par->matchinfo;
+    const struct xt_opendpi_mtinfo *info = par->matchinfo;
 
-	if (IPOQUE_BITMASK_IS_ZERO(info->flags)){
-		pr_info("None selected protocol.\n");
-		return false;
-	}
+    if (IPOQUE_BITMASK_IS_ZERO(info->flags)){
+        pr_info("None selected protocol.\n");
+        return false;
+    }
 
         opendpi_enable_protocols (info);
 
-	return nf_ct_l3proto_try_module_get (par->family) == 0;
+    return nf_ct_l3proto_try_module_get (par->family) == 0;
 }
 #else
 static int
 opendpi_mt_check(const struct xt_mtchk_param *par)
 {
-	const struct xt_opendpi_mtinfo *info = par->matchinfo;
+    const struct xt_opendpi_mtinfo *info = par->matchinfo;
 
-	if (IPOQUE_BITMASK_IS_ZERO(info->flags)){
-		pr_info("None selected protocol.\n");
-		return -EINVAL;
-	}
+    if (IPOQUE_BITMASK_IS_ZERO(info->flags)){
+        pr_info("None selected protocol.\n");
+        return -EINVAL;
+    }
 
         opendpi_enable_protocols (info);
 
-	return nf_ct_l3proto_try_module_get (par->family);
+    return nf_ct_l3proto_try_module_get (par->family);
 }
 #endif
 
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,28)
-static void 
+static void
 opendpi_mt_destroy (const struct xt_match *match, void *matchinfo)
 {
-	const struct xt_opendpi_mtinfo *info = matchinfo;
+    const struct xt_opendpi_mtinfo *info = matchinfo;
 
         opendpi_disable_protocols (info);
-	nf_ct_l3proto_module_put (match->family);
+    nf_ct_l3proto_module_put (match->family);
 }
 
 #else
-static void 
+static void
 opendpi_mt_destroy (const struct xt_mtdtor_param *par)
 {
-	const struct xt_opendpi_mtinfo *info = par->matchinfo;
+    const struct xt_opendpi_mtinfo *info = par->matchinfo;
 
         opendpi_disable_protocols (info);
-	nf_ct_l3proto_module_put (par->family);
+    nf_ct_l3proto_module_put (par->family);
 }
 
 #endif
@@ -606,12 +611,12 @@ static void opendpi_cleanup(void)
 
         ipoque_exit_detection_module(ipoque_struct, free_wrapper);
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,2,0)         
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,2,0)
         nf_conntrack_unregister_notifier (&osdpi_notifier);
 #else
-	nf_conntrack_unregister_notifier (&init_net,&osdpi_notifier);
+    nf_conntrack_unregister_notifier (&init_net,&osdpi_notifier);
 #endif
-        
+
         /* free all objects before destroying caches */
         next = rb_first(&osdpi_flow_root);
         while (next){
@@ -621,7 +626,7 @@ static void opendpi_cleanup(void)
                 kmem_cache_free (osdpi_flow_cache, flow);
         }
         kmem_cache_destroy (osdpi_flow_cache);
-        
+
         next = rb_first(&osdpi_id_root);
         while (next){
                 id = rb_entry(next, struct osdpi_id_node, node);
@@ -635,18 +640,18 @@ static void opendpi_cleanup(void)
 
 static struct xt_match
 opendpi_mt_reg __read_mostly = {
-	.name = "opendpi",
-	.revision = 0,
+    .name = "opendpi",
+    .revision = 0,
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,28)
-	.family = AF_INET,
+    .family = AF_INET,
 #else
-	.family = NFPROTO_IPV4,
+    .family = NFPROTO_IPV4,
 #endif
-	.match = opendpi_mt,
-	.checkentry = opendpi_mt_check,
-	.destroy = opendpi_mt_destroy,
-	.matchsize = sizeof(struct xt_opendpi_mtinfo),
-	.me = THIS_MODULE,
+    .match = opendpi_mt,
+    .checkentry = opendpi_mt_check,
+    .destroy = opendpi_mt_destroy,
+    .matchsize = sizeof(struct xt_opendpi_mtinfo),
+    .me = THIS_MODULE,
 };
 
 
@@ -654,28 +659,28 @@ static int __init opendpi_mt_init(void)
 {
         int ret, i;
 
-	pr_info("xt_opendpi 0.1 (OpenDPI wrapper module).\n");
-	/* init global detection structure */
-	ipoque_struct = ipoque_init_detection_module(detection_tick_resolution,
+    pr_info("xt_opendpi 0.1 (OpenDPI wrapper module).\n");
+    /* init global detection structure */
+    ipoque_struct = ipoque_init_detection_module(detection_tick_resolution,
                                                      malloc_wrapper, debug_printf);
-	if (ipoque_struct == NULL) {
-		pr_err("xt_opendpi: global structure initialization failed.\n");
+    if (ipoque_struct == NULL) {
+        pr_err("xt_opendpi: global structure initialization failed.\n");
                 ret = -ENOMEM;
                 goto err_out;
-	}
-        
+    }
+
         for (i = 0; i < IPOQUE_MAX_SUPPORTED_PROTOCOLS; i++){
                 atomic_set (&protocols_cnt[i], 0);
         }
 
-	/* disable all protocols */
-	IPOQUE_BITMASK_RESET(protocols_bitmask);
-	ipoque_set_protocol_detection_bitmask2(ipoque_struct, &protocols_bitmask);
-        
-	/* allocate memory for id and flow tracking */
-	size_id_struct = ipoque_detection_get_sizeof_ipoque_id_struct();
-	size_flow_struct = ipoque_detection_get_sizeof_ipoque_flow_struct();
-        
+    /* disable all protocols */
+    IPOQUE_BITMASK_RESET(protocols_bitmask);
+    ipoque_set_protocol_detection_bitmask2(ipoque_struct, &protocols_bitmask);
+
+    /* allocate memory for id and flow tracking */
+    size_id_struct = ipoque_detection_get_sizeof_ipoque_id_struct();
+    size_flow_struct = ipoque_detection_get_sizeof_ipoque_flow_struct();
+
         osdpi_flow_cache = kmem_cache_create("xt_opendpi_flows",
                                              sizeof(struct osdpi_flow_node) +
                                              size_flow_struct,
@@ -685,7 +690,7 @@ static int __init opendpi_mt_init(void)
                 ret = -ENOMEM;
                 goto err_ipq;
         }
-        
+
         osdpi_id_cache = kmem_cache_create("xt_opendpi_ids",
                                            sizeof(struct osdpi_id_node) +
                                            size_id_struct,
@@ -696,10 +701,10 @@ static int __init opendpi_mt_init(void)
                 goto err_flow;
         }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,2,0)        
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,2,0)
         ret = nf_conntrack_register_notifier(&osdpi_notifier);
 #else
-	ret = nf_conntrack_register_notifier(&init_net,&osdpi_notifier);
+    ret = nf_conntrack_register_notifier(&init_net,&osdpi_notifier);
 #endif
         if (ret < 0){
                 pr_err("xt_opendpi: error registering notifier.\n");
@@ -727,9 +732,9 @@ err_out:
 
 static void __exit opendpi_mt_exit(void)
 {
-	pr_info("xt_opendpi 1.2 unload.\n");
+    pr_info("xt_opendpi 1.2 unload.\n");
 
-	xt_unregister_match(&opendpi_mt_reg);
+    xt_unregister_match(&opendpi_mt_reg);
 
         opendpi_cleanup();
 }
