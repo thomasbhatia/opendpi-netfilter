@@ -1,6 +1,7 @@
 /*
  * xt_opendpi.h
  * Copyright (C) 2010-2012 G. Elian Gidoni <geg@gnu.org>
+ * Copyright (C) 2018 Thomas Bhatia <thomas.bhatia@eo.io>
  *
  * This file is part of OpenDPI, an open source deep packet inspection
  * library based on the PACE technology by ipoque GmbH
