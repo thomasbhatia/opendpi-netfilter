@@ -1,8 +1,8 @@
 all:
 	$(MAKE) -C ipt
 	$(MAKE) -C src
-modules_install:
-	$(MAKE) -C src modules_install
+install:
+	$(MAKE) -C src install
 clean:
 	$(MAKE) -C src clean
 	$(MAKE) -C ipt clean

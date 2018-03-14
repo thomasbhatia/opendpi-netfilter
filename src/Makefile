@@ -1,11 +1,15 @@
-OPENDPI_PATH2 := ${OPENDPI_PATH}/src
-OPENDPI_SRC := opendpi_cpy
+OPENDPI_SRC := ../../src
 OPENDPI_PRO := ${OPENDPI_SRC}/lib/protocols
 
-ccflags-y += -I${src}/${OPENDPI_SRC}/include -I${src}/${OPENDPI_SRC}/lib -DOPENDPI_NETFILTER_MODULE
+ccflags-y += -Werror -DDEBUG -I${src}/${OPENDPI_SRC}/include -I${src}/${OPENDPI_SRC}/lib -DOPENDPI_NETFILTER_MODULE
 
-#MODULES_DIR := /lib/modules/$(shell uname -r)
-#KERNEL_DIR := ${MODULES_DIR}/build
+MODULES_DIR := /lib/modules/$(shell uname -r)
+KERNEL_DIR := ${MODULES_DIR}/build
+
+XTABLES_LIBDIR_SEARCH := "/lib/xtables" "/lib64/xtables" "/usr/lib/xtables"	\
+						 "/usr/lib/iptables" "/usr/lib64/xtables"			\
+						 "/usr/lib64/iptables" "/usr/local/lib/xtables"		\
+						 "/usr/lib/x86_64-linux-gnu/xtables"
 
 obj-m := xt_opendpi.o
 xt_opendpi-y := main.o ${OPENDPI_SRC}/lib/ipq_main.o \
@@ -44,24 +48,17 @@ xt_opendpi-y := main.o ${OPENDPI_SRC}/lib/ipq_main.o \
                 ${OPENDPI_PRO}/http_activesync.o ${OPENDPI_PRO}/armagetron.o \
                 ${OPENDPI_PRO}/florensia.o ${OPENDPI_PRO}/world_of_kung_fu.o \
                 ${OPENDPI_PRO}/mssql.o ${OPENDPI_PRO}/guildwars.o \
-                ${OPENDPI_PRO}/crossfire.o ${OPENDPI_PRO}/fiesta.o ${OPENDPI_PRO}/hf.o \
-		${OPENDPI_PRO}/pt11.o ${OPENDPI_PRO}/funshion.o ${OPENDPI_PRO}/pptv.o \
-		${OPENDPI_PRO}/counterstrike.o ${OPENDPI_PRO}/aliwangwang.o 
+                ${OPENDPI_PRO}/crossfire.o ${OPENDPI_PRO}/fiesta.o
 
 all:
-	if test -d ${OPENDPI_SRC}; then \
-		cp ${OPENDPI_PATH2}/* ${OPENDPI_SRC} -R; \
-	else \
-		mkdir ${OPENDPI_SRC}; \
-		cp ${OPENDPI_PATH2}/* ${OPENDPI_SRC} -R; \
-	fi
 	make -C ${KERNEL_DIR} M=$$PWD;
-	rm -r ${OPENDPI_SRC}
 modules:
 	make -C ${KERNEL_DIR} M=$$PWD $@;
-modules_install:
-	make -C ${KERNEL_DIR} M=$$PWD $@;
+install:
+	for DIR in $(XTABLES_LIBDIR_SEARCH) ; do \
+		if [ -d $$DIR ]; then echo "copying ipt/libxt_opendpi.so to" $$DIR; fi \
+	done
 	depmod -a;
 clean:
 	make -C ${KERNEL_DIR} M=$$PWD $@;
-	rm -rf modules.order ${OPENDPI_SRC}
+	rm -rf modules.order
