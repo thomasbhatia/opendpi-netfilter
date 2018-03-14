@@ -1,30 +1,41 @@
-OpenDPI module INSTALL
-----------------------
+This package is a GPL implementation of an iptables and netfilter module for
+OpenDPI integration into the Linux kernel.
+
+The prerequisites are:
+
+- Tested on Ubuntu 16.04.4 LTS (Kernel 4.4.0)
+- Following packages to compile kernel-modules:
+   linux-headers
+   iptables-dev >= version 1.4.8-3
+   OpenDPI source package (you can get it from https://github.com/thomasbhatia/OpenDPI)
+
+
+Compiled kernel features
+------------------------
 
 To install the modules follow these steps:
 
-- To download, compile and install the modules:
+ - Enter OpenDPI source package folder:
 
- -Enter OpenDPI folder:
-
-  cd [path]/OpenDPI
+        cd [path]/OpenDPI
 
  - Git clone:
 
-  git clone https://github.com/thomasbhatia/opendpi-netfilter.git
+        git clone https://github.com/thomasbhatia/opendpi-netfilter.git
 
 
  - Enter the opendpi-netfilter folder:
 
-	cd opendpi-netfilter
+        cd opendpi-netfilter
 
  - Run Make:
 
- 	make  
+        make
 
 - Then install:
 
-    sudo make install
+        sudo make install
+
 
 
 Now you can read the following section to learn how to use it.
@@ -57,3 +68,4 @@ In case you want to stop using the OpenDPI kernel module, first remove every
 iptables rule for OpenDPI and then type (as root):
 
         modprobe -r xt_opendpi
+
