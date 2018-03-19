@@ -5,9 +5,13 @@ The prerequisites are:
 
 - Tested on Ubuntu 16.04.4 LTS (Kernel 4.4.0)
 - Following packages to compile kernel-modules:
-   linux-headers
-   iptables-dev >= version 1.4.8-3
-   OpenDPI source package (you can get it from https://github.com/thomasbhatia/OpenDPI)
+
+    - linux-headers
+
+    - iptables-dev >= version 1.4.8-3
+
+    - [OpenDPI source package](https://github.com/thomasbhatia/OpenDPI)
+
 
 
 Compiled kernel features
@@ -15,11 +19,15 @@ Compiled kernel features
 
 To install the modules follow these steps:
 
+ - Git clone OpenDPI project:
+
+        git clone https://github.com/thomasbhatia/OpenDPI.git
+
  - Enter OpenDPI source package folder:
 
-        cd [path]/OpenDPI
+        cd OpenDPI
 
- - Git clone:
+ - Git clone opendpi-netfilter project:
 
         git clone https://github.com/thomasbhatia/opendpi-netfilter.git
 
@@ -55,7 +63,7 @@ available protocols you can match for in every packet, type (as root):
 
         iptables -m opendpi --help
 
-Note that the list is long, you best try: "iptables -m opendpi --help | more"
+Note that the list is long, use 'more': "iptables -m opendpi --help | more"
 
 An example rule would be (as root):
 

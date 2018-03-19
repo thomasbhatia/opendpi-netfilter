@@ -458,10 +458,12 @@ opendpi_mt (const struct sk_buff *skb,
 
 #elif LINUX_VERSION_CODE < KERNEL_VERSION(2,6,35)
 static bool
-opendpi_mt(const struct sk_buff *skb, const struct xt_match_param *par)
+opendpi_mt(const struct sk_buff *skb,
+           const struct xt_match_param *par)
 #else
 static bool
-opendpi_mt(const struct sk_buff *skb, struct xt_action_param *par)
+opendpi_mt(const struct sk_buff *skb,
+           struct xt_action_param *par)
 #endif
 {
     u32 proto;
